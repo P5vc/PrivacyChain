@@ -35,19 +35,19 @@ def createNodes():
 		nodes.append(Node(i))
 
 	for i in range(0 , len(nodes)):
-		if ((i + 1) > (NUMBER_OF_NETWORK_PARTICIPANTS - 1)):
+		if (i + 1) > (NUMBER_OF_NETWORK_PARTICIPANTS - 1):
 			nodes[i].neighborUD = nodes[0]
 		else:
 			nodes[i].neighborUD = nodes[i + 1]
-		if ((i - 1) < 0):
+		if (i - 1) < 0:
 			nodes[i].neighborDD = nodes[(NUMBER_OF_NETWORK_PARTICIPANTS - 1)]
 		else:
 			nodes[i].neighborDD = nodes[i - 1]
-		if ((nodes[i].neighborUD.publicKey + 1) > (NUMBER_OF_NETWORK_PARTICIPANTS - 1)):
+		if (nodes[i].neighborUD.publicKey + 1) > (NUMBER_OF_NETWORK_PARTICIPANTS - 1):
 			nodes[i].neighborUI = nodes[0]
 		else:
 			nodes[i].neighborUI = (nodes[i].neighborUD.publicKey + 1)
-		if ((nodes[i].neighborDD.publicKey - 1) < 0):
+		if (nodes[i].neighborDD.publicKey - 1) < 0:
 			nodes[i].neighborDI = nodes[(NUMBER_OF_NETWORK_PARTICIPANTS - 1)]
 		else:
 			nodes[i].neighborDI = nodes[(nodes[i].neighborDD.publicKey - 1)]
@@ -59,11 +59,11 @@ def selectValidNode(node , nodes):
 	counter = (NUMBER_OF_NETWORK_PARTICIPANTS * 10)
 	while (True):
 		selection = secrets.choice(nodes)
-		if ((selection == node) or (selection == node.neighborUD) or (selection == node.neighborDD) or (selection == node.neighborUI) or (selection == node.neighborDI) or (selection in node.branches) or (all(selection.branches))):
+		if (selection == node) or (selection == node.neighborUD) or (selection == node.neighborDD) or (selection == node.neighborUI) or (selection == node.neighborDI) or (selection in node.branches) or (all(selection.branches)):
 			counter -= 1
-			if (counter <= 0):
+			if counter <= 0:
 				for aNode in nodes:
-					if (not((aNode == node) or (aNode == node.neighborUD) or (aNode == node.neighborDD) or (aNode == node.neighborUI) or (aNode == node.neighborDI) or (aNode in node.branches) or (all(selection.branches)))):
+					if not ((aNode == node) or (aNode == node.neighborUD) or (aNode == node.neighborDD) or (aNode == node.neighborUI) or (aNode == node.neighborDI) or (aNode in node.branches) or all(selection.branches)):
 						return aNode
 				return 'X'
 		else:
@@ -73,13 +73,13 @@ def selectValidNode(node , nodes):
 def establishBranches(nodes):
 	for i in range(0 , len(nodes)):
 		for branchNum in range(0 , NUMBER_OF_BRANCHES):
-			if (not(nodes[i].branches[branchNum])):
+			if not nodes[i].branches[branchNum]:
 				validNode = selectValidNode(nodes[i] , nodes)
-				if (validNode == 'X'):
+				if validNode == 'X':
 					nodes[i].branches[branchNum] = validNode
 					continue
 				for chosenNodeBranchCounter in range(0 , NUMBER_OF_BRANCHES):
-					if (not(validNode.branches[chosenNodeBranchCounter])):
+					if not validNode.branches[chosenNodeBranchCounter]:
 						nodes[nodes.index(validNode)].branches[chosenNodeBranchCounter] = nodes[i]
 						break
 
@@ -106,7 +106,7 @@ def findPaths(nodes , printResults = False , returnResults = False):
 		nonlocal paths , numHopsProcessed , numTimesEndNodeReached , numTimesEndNodeReachedWithinHopCount , numTimesHopCountExceeded
 		numHopsProcessed += 1
 
-		if (node == 'X'):
+		if node == 'X':
 			return
 
 		currentPath = []
@@ -114,24 +114,24 @@ def findPaths(nodes , printResults = False , returnResults = False):
 			currentPath.append(item)
 		currentPath.append(node)
 
-		if (node == endingNode):
+		if node == endingNode:
 			numTimesEndNodeReached += 1
-			if ((len(currentPath) >= MIN_HOPS) and (len(currentPath) <= MAX_HOPS)):
+			if (len(currentPath) >= MIN_HOPS) and (len(currentPath) <= MAX_HOPS):
 				numTimesEndNodeReached += 1
 				numTimesEndNodeReachedWithinHopCount += 1
 				paths.append(currentPath)
 				return
 
-		if (len(currentPath) >= MAX_HOPS):
+		if len(currentPath) >= MAX_HOPS:
 			numTimesHopCountExceeded += 1
 			return
 
-		if (not(node.neighborUD == currentPath[(len(currentPath) - 1)])):
+		if not node.neighborUD == currentPath[(len(currentPath) - 1)]:
 			recursivePathTraversal(node.neighborUD , currentPath)
-		if (not(node.neighborDD == currentPath[(len(currentPath) - 1)])):
+		if not node.neighborDD == currentPath[(len(currentPath) - 1)]:
 			recursivePathTraversal(node.neighborDD , currentPath)
 		for branchNum in range(0 , NUMBER_OF_BRANCHES):
-			if (not(node.branches[branchNum] == currentPath[(len(currentPath) - 1)])):
+			if not node.branches[branchNum] == currentPath[(len(currentPath) - 1)]:
 				recursivePathTraversal(node.branches[branchNum] , currentPath)
 
 
@@ -142,12 +142,12 @@ def findPaths(nodes , printResults = False , returnResults = False):
 		unique = set()
 		for item in path:
 			unique.add(item)
-		if (len(unique) >= MIN_UNIQUE_HOPS):
+		if len(unique) >= MIN_UNIQUE_HOPS:
 			filteredPaths.append(path)
 
 	endTime = time.time()
 
-	if (printResults):
+	if printResults:
 		print('Number of hops processed:' , numHopsProcessed)
 		print('Number of valid paths found:' , len(filteredPaths))
 		print('Number of times correct end node found:' , numTimesEndNodeReached)
@@ -155,7 +155,7 @@ def findPaths(nodes , printResults = False , returnResults = False):
 		print('Number of times the max hop count was exceeded' , numTimesHopCountExceeded)
 		print('It took' , (endTime - startTime) , 'seconds to process all of the possible paths.')
 
-	if (returnResults):
+	if returnResults:
 		return numHopsProcessed , len(filteredPaths) , numTimesEndNodeReached , numTimesEndNodeReachedWithinHopCount , numTimesHopCountExceeded , (endTime - startTime)
 
 
